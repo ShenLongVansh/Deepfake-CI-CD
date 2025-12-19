@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from app.model import classifier, MODEL_MODE
+from model import classifier, MODEL_MODE
 from PIL import Image
 import io
 
