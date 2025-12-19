@@ -17,9 +17,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# [Will fix in the future] after submission of assignment (user doesnt have the scope to look into .huggingface directory. don't want complications right now)
-# RUN groupadd -r appuser && useradd -r -g appuser appuser
-
 # Copy only the compiled wheels from the builder stage
 COPY --from=builder /app/wheels /wheels
 COPY --from=builder /app/requirements.txt .
@@ -30,9 +27,6 @@ RUN pip install --no-cache --no-index /wheels/* \
     && rm -rf /root/.cache/pip
 
 COPY src /app
-
-# [Will fix in the future] 
-# USER appuser
 
 EXPOSE 8000
 
