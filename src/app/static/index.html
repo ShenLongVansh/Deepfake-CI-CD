@@ -1,195 +1,293 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>VoiceGuardAI Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceGuardAI - Advanced Deepfake Detection</title>
+    <style>
+        :root {
+            --primary-blue: #1d80c3;
+            --bg-gradient: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
 
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      max-width: 650px;
-      margin: 40px auto;
-      padding: 10px;
-    }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #334155;
+        }
 
-    h2 {
-      text-align: center;
-    }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    input, button {
-      padding: 8px;
-      margin-top: 6px;
-    }
+        .logo-icon {
+            background-color: #0070c0;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 12px rgba(0, 112, 192, 0.3);
+        }
 
-    button {
-      cursor: pointer;
-    }
+        h1 {
+            font-size: 2rem;
+            margin: 0;
+            color: #1e293b;
+            font-weight: 700;
+        }
 
-    .section {
-      margin-top: 20px;
-    }
+        .subtitle {
+            color: #64748b;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
 
-    .result-box {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 6px;
-      text-align: center;
-      font-size: 18px;
-      display: none;
-    }
+        .card {
+            background: white;
+            width: 90%;
+            max-width: 700px;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
 
-    .real {
-      background: #e7f8ee;
-      color: #1b7a3d;
-      border: 1px solid #1b7a3d;
-    }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-    .fake {
-      background: #fdecec;
-      color: #b32020;
-      border: 1px solid #b32020;
-    }
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.5rem;
+        }
 
-    .confidence {
-      font-size: 14px;
-      margin-top: 6px;
-    }
+        .label-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    .json-box {
-      margin-top: 15px;
-      background: #f6f6f6;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      display: none;
-      white-space: pre-wrap;
-    }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
 
-    #loader {
-      display: none;
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-    }
+        input[type="text"]:focus {
+            border-color: var(--primary-blue);
+        }
 
-    .reset-btn {
-      margin-top: 10px;
-      background: #eee;
-      border: 1px solid #aaa;
-    }
-  </style>
+        .btn-analyze {
+            background: linear-gradient(90deg, #2563eb, #0ea5e9);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            min-width: 100px;
+        }
+
+        .btn-analyze:hover {
+            opacity: 0.9;
+        }
+
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .file-upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* Result Styles */
+        .result-container {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+        .real { background: #dcfce7; color: #166534; }
+        .fake { background: #fee2e2; color: #991b1b; }
+
+        #loader { display: none; margin-top: 1rem; color: var(--primary-blue); font-weight: 600; }
+    </style>
 </head>
-
 <body>
 
-  <h2>VoiceGuardAI – Deepfake Detection</h2>
+    <div class="header">
+        <div class="logo-icon">
+            <img src="./voice-logo.jpeg" alt="VoiceGuardAI Logo" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+        </div>
+        <h1>VoiceGuardAI</h1>
+        <div class="subtitle">Advanced Deepfake Detection System</div>
+    </div>
 
-  <!-- URL input -->
-  <div class="section">
-    <input id="url" placeholder="Paste image URL" style="width:100%;" />
-    <button onclick="predictUrl()">Predict URL</button>
-  </div>
+    <div class="card">
+        <div class="input-group">
+            <div class="label-text">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                Image URL
+            </div>
+            <div class="input-row">
+                <input type="text" id="urlInput" placeholder="Paste image URL here...">
+                <button class="btn-analyze" onclick="predictUrl()">Analyze</button>
+            </div>
 
-  <!-- File input -->
-  <div class="section">
-    <input type="file" id="file" />
-    <button onclick="predictFile()">Upload & Predict</button>
-    <button class="reset-btn" onclick="resetAll()">Remove Image</button>
-  </div>
+            <div class="divider"><span>OR</span></div>
 
-  <!-- Loader -->
-  <div id="loader">Analyzing image… ⏳</div>
+            <div class="label-text">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Upload Image
+            </div>
+            <div class="input-row">
+                <div class="file-upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <span id="fileNameDisplay">Choose a file...</span>
+                    <input type="file" id="fileInput" hidden onchange="updateFileName(this)">
+                </div>
+                <button class="btn-analyze" onclick="predictFile()">Analyze</button>
+            </div>
+        </div>
 
-  <!-- Verdict -->
-  <div id="resultBox" class="result-box">
-    <div id="verdict"></div>
-    <div id="confidence" class="confidence"></div>
-  </div>
+        <div id="loader">Processing analysis...</div>
+        
+        <div id="resultBox" class="result-container">
+            <strong id="verdict"></strong>
+            <div id="confidence"></div>
+        </div>
+    </div>
 
-  <!-- Raw JSON -->
-  <div id="jsonBox" class="json-box"></div>
+    <div class="footer-note">
+        Made with ❤️ by Vansh Sharma
+    </div>
 
-  <script>
-    function showLoader() {
-      document.getElementById("loader").style.display = "block";
-    }
+    <script>
+        function updateFileName(input) {
+            const name = input.files[0] ? input.files[0].name : "Choose a file...";
+            document.getElementById('fileNameDisplay').innerText = name;
+        }
 
-    function hideLoader() {
-      document.getElementById("loader").style.display = "none";
-    }
+        function showLoader(show) {
+            document.getElementById('loader').style.display = show ? 'block' : 'none';
+            document.getElementById('resultBox').style.display = 'none';
+        }
 
-    function showResult(data) {
-      const box = document.getElementById("resultBox");
-      const verdict = document.getElementById("verdict");
-      const confidence = document.getElementById("confidence");
-      const jsonBox = document.getElementById("jsonBox");
+        async function predictUrl() {
+            const url = document.getElementById("urlInput").value;
+            if (!url) return alert("Please enter a URL");
+            
+            showLoader(true);
+            try {
+                const res = await fetch("/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image_url: url })
+                });
+                const data = await res.json();
+                displayResult(data);
+            } catch (e) {
+                alert("Error connecting to server");
+            } finally {
+                showLoader(false);
+            }
+        }
 
-      const label = data.label.toLowerCase();
+        async function predictFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) return alert("Please select a file");
 
-      box.className = "result-box " + (label === "real" ? "real" : "fake");
-      verdict.innerText = label.toUpperCase();
-      confidence.innerText = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+            const fd = new FormData();
+            fd.append("file", fileInput.files[0]);
 
-      jsonBox.innerText = JSON.stringify(data, null, 2);
+            showLoader(true);
+            try {
+                const res = await fetch("/predict-file", {
+                    method: "POST",
+                    body: fd
+                });
+                const data = await res.json();
+                displayResult(data);
+            } catch (e) {
+                alert("Error uploading file");
+            } finally {
+                showLoader(false);
+            }
+        }
 
-      box.style.display = "block";
-      jsonBox.style.display = "block";
-    }
+        function displayResult(data) {
+            const box = document.getElementById("resultBox");
+            const verdict = document.getElementById("verdict");
+            const conf = document.getElementById("confidence");
 
-    function resetAll() {
-      document.getElementById("file").value = "";
-      document.getElementById("url").value = "";
-      document.getElementById("resultBox").style.display = "none";
-      document.getElementById("jsonBox").style.display = "none";
-    }
-
-    async function predictUrl() {
-      const url = document.getElementById("url").value;
-      if (!url) return alert("Please enter an image URL");
-
-      showLoader();
-
-      try {
-        const res = await fetch("/predict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_url: url })
-        });
-
-        const data = await res.json();
-        showResult(data);
-
-      } catch {
-        alert("Prediction failed");
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function predictFile() {
-      const fileInput = document.getElementById("file");
-      if (!fileInput.files.length) return alert("Select a file");
-
-      const fd = new FormData();
-      fd.append("file", fileInput.files[0]);
-
-      showLoader();
-
-      try {
-        const res = await fetch("/predict-file", {
-          method: "POST",
-          body: fd
-        });
-
-        const data = await res.json();
-        showResult(data);
-
-      } catch {
-        alert("Prediction failed");
-      } finally {
-        hideLoader();
-      }
-    }
-  </script>
-
+            const isReal = data.label.toLowerCase() === "real";
+            box.className = `result-container ${isReal ? 'real' : 'fake'}`;
+            box.style.display = 'block';
+            
+            verdict.innerText = isReal ? "VERDICT: REAL" : "VERDICT: DEEPFAKE";
+            conf.innerText = `Confidence Score: ${(data.confidence * 100).toFixed(2)}%`;
+        }
+    </script>
 </body>
 </html>
