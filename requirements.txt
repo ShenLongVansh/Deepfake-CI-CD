@@ -1,6 +1,6 @@
 fastapi
 uvicorn[standard]
 python-multipart
-torch
+torch==2.2.2+cpu
 transformers
 pillow
