@@ -32,7 +32,7 @@ def predict(data: dict):
 
     return {
         "label": random.choice(["real", "fake"]),
-        "confidence": round(random.uniform(0.8, 0.99), 1),
+        "confidence": round(random.uniform(0.8, 0.99), 2),
         "input": data
     }
 
