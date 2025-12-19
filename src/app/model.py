@@ -2,6 +2,7 @@ import os
 from transformers import pipeline
 
 MODEL_PATH = os.getenv("MODEL_PATH", "/opt/models/deepfake")
+MODEL_NAME = "dima806/deepfake_vs_real_image_detection"
 
 classifier = None
 MODEL_MODE = "mock"
