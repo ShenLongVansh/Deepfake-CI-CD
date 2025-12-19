@@ -1,6 +1,6 @@
 services:
   api:
-    image: voiceguard-lab
+    image: shenlongcodes/voiceguard-inference:latest
     ports:
       - "8000:8000"
     volumes:
