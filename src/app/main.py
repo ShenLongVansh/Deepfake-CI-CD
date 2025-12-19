@@ -2,6 +2,10 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app.model import classifier, MODEL_MODE
+from PIL import Image
+import io
+
 import random
 import time
 from pathlib import Path
@@ -41,11 +45,27 @@ def predict(data: dict):
 
 @app.post("/predict-file")
 async def predict_file(file: UploadFile = File(...)):
+    contents = await file.read()
+
+    if MODEL_MODE == "local":
+        image = Image.open(io.BytesIO(contents)).convert("RGB")
+        result = classifier(image)
+
+        return {
+            "label": result[0]["label"],
+            "confidence": round(result[0]["score"], 3),
+            "mode": "real-model",
+            "filename": file.filename
+        }
+
+    # fallback mock
     return {
         "label": random.choice(["real", "fake"]),
         "confidence": round(random.uniform(0.75, 0.99), 2),
+        "mode": "mock",
         "filename": file.filename
     }
+
 
 @app.get("/", response_class=HTMLResponse)
 def root():
