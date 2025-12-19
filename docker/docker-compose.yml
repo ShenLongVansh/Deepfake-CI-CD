@@ -1,6 +1,9 @@
 services:
   api:
-    build:
-      context: ..
+    image: voiceguard-lab
     ports:
       - "8000:8000"
+    volumes:
+      - /opt/models/deepfake:/opt/models/deepfake
+    environment:
+      - MODEL_PATH=/opt/models/deepfake
