@@ -40,7 +40,9 @@ def predict_from_url(req: PredictURLRequest):
         response.raise_for_status()
 
         image = Image.open(io.BytesIO(response.content)).convert("RGB")
-        result = classifier(image, padding=True)
+        result = classifier(image)
+
+        # result = classifier(image, padding=True)
 
         return {
             "label": result[0]["label"],
@@ -64,7 +66,8 @@ async def predict_file(file: UploadFile = File(...)):
     if MODEL_MODE == "local":
         try:
             image = Image.open(io.BytesIO(contents)).convert("RGB")
-            result = classifier(image, padding=True)
+            result = classifier(image)
+            # result = classifier(image, padding=True)
 
             return {
                 "label": result[0]["label"],
