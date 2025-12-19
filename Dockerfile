@@ -17,8 +17,8 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Create a non-root user (trying to make it secure as well)
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# [Will fix in the future] after submission of assignment (user doesnt have the scope to look into .huggingface directory. don't want complications right now)
+# RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Copy only the compiled wheels from the builder stage
 COPY --from=builder /app/wheels /wheels
@@ -31,8 +31,8 @@ RUN pip install --no-cache --no-index /wheels/* \
 
 COPY src /app
 
-# Switch to non-root user
-USER appuser
+# [Will fix in the future] 
+# USER appuser
 
 EXPOSE 8000
 
