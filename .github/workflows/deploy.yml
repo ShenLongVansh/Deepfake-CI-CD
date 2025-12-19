@@ -1,0 +1,49 @@
+name: CI/CD Deploy to DigitalOcean Droplet
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & run tests
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install -e .
+          pytest
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/voiceguard-inference:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/voiceguard-inference:latest
+
+      - name: Deploy on DigitalOcean Droplet
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DO_SSH_HOST }}
+          username: ${{ secrets.DO_SSH_USER }}
+          key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/voiceguard
+            docker compose pull
+            docker compose down
+            docker compose up -d
+            docker image prune -f

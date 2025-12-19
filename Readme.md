@@ -1,0 +1,1 @@
+Experimenting with Assignment of voice guard ai by offloading the huggingface model onto the droplet, then caching it accordingly.
