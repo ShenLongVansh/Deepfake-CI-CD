@@ -25,14 +25,14 @@
 
         .header { text-align: center; margin-bottom: 2rem; }
         
-        .logo-icon {
-            background: var(--primary);
-            color: white;
-            width: 56px; height: 56px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 1rem;
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+        .logo-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain; /* Ensures logo doesn't stretch */
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            /* Optional: Add a subtle shadow to the logo itself */
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); 
         }
 
         h1 { margin: 0; font-size: 1.8rem; color: #0f172a; }
@@ -122,16 +122,43 @@
         .verdict { font-size: 1.5rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
         .conf { font-size: 1rem; opacity: 0.9; }
 
-        /* JSON Debugger (Optional: Hidden unless needed) */
-        #debug { display: none; } 
+        /* JSON VIEWER STYLES */
+        details {
+            margin-top: 15px;
+            text-align: left;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding-top: 10px;
+        }
+
+        summary {
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 600;
+            outline: none;
+            user-select: none;
+        }
+        
+        summary:hover { color: #334155; }
+
+        pre {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Wrap long lines */
+            border: 1px solid rgba(0,0,0,0.1);
+            margin-top: 5px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo-icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        </div>
+        <img src="/static/voice-logo.jpeg" alt="VoiceGuardAI Logo" class="logo-img" onerror="this.style.display='none'">
+        
         <h1>VoiceGuardAI</h1>
         <div class="subtitle">Deepfake Detection System</div>
     </div>
@@ -158,11 +185,16 @@
             </div>
         </div>
 
-        <div id="loader">Processing... ⏳</div>
+        <div id="loader">Analyzing... ⏳</div>
         
         <div id="result-box">
             <span id="verdict" class="verdict"></span>
             <div id="confidence" class="conf"></div>
+
+            <details>
+                <summary>View Raw Details</summary>
+                <pre id="json-output"></pre>
+            </details>
         </div>
     </div>
 
@@ -174,31 +206,32 @@
 
         function setUIState(isLoading) {
             document.getElementById('loader').style.display = isLoading ? 'block' : 'none';
-            document.getElementById('result-box').style.display = 'none'; // Always hide result when starting
+            document.getElementById('result-box').style.display = 'none'; 
             
-            // Disable buttons to prevent double-clicks
             document.getElementById('btn-url').disabled = isLoading;
             document.getElementById('btn-file').disabled = isLoading;
         }
 
-        function showResult(label, confidence) {
+        function showResult(data) {
             const box = document.getElementById('result-box');
             const verdictEl = document.getElementById('verdict');
             const confEl = document.getElementById('confidence');
+            const jsonEl = document.getElementById('json-output');
 
-            // Normalize label (your model might return "real", "REAL", "Real", "fake" etc.)
-            const lowerLabel = String(label).toLowerCase();
+            // Handle Case Sensitivity (Real vs real)
+            const lowerLabel = String(data.label).toLowerCase();
             const isReal = lowerLabel === 'real';
 
-            // 1. Set Colors
+            // 1. Set Visuals
             box.className = isReal ? 'res-real' : 'res-fake';
-
-            // 2. Set Text
             verdictEl.innerText = isReal ? "REAL" : "FAKE";
             
-            // 3. Set Confidence (handle if backend sends raw number or string)
-            const confPercent = (parseFloat(confidence) * 100).toFixed(1);
+            // 2. Set Confidence
+            const confPercent = (parseFloat(data.confidence) * 100).toFixed(1);
             confEl.innerText = `Confidence: ${confPercent}%`;
+
+            // 3. Set JSON
+            jsonEl.innerText = JSON.stringify(data, null, 2);
 
             // 4. Reveal
             box.style.display = 'block';
@@ -209,6 +242,7 @@
             box.className = 'res-error';
             document.getElementById('verdict').innerText = "ERROR";
             document.getElementById('confidence').innerText = msg;
+            document.getElementById('json-output').innerText = `Error: ${msg}`;
             box.style.display = 'block';
         }
 
@@ -231,17 +265,12 @@
                 if (!res.ok) throw new Error("Failed to fetch image");
 
                 const data = await res.json();
-                console.log("Server Response:", data); // Debugging log
-
-                if (data.label === undefined) throw new Error("Invalid response format");
-                
-                showResult(data.label, data.confidence);
+                showResult(data);
 
             } catch (err) {
                 console.error(err);
                 showError(err.message);
             } finally {
-                // Only hide loader, do NOT hide result-box here
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('btn-url').disabled = false;
                 document.getElementById('btn-file').disabled = false;
@@ -265,9 +294,7 @@
                 if (!res.ok) throw new Error(`Server Error: ${res.status}`);
 
                 const data = await res.json();
-                console.log("Server Response:", data); // Debugging log
-
-                showResult(data.label, data.confidence);
+                showResult(data);
 
             } catch (err) {
                 console.error(err);
