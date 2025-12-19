@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 python-multipart
-torch==2.2.2+cpu
-transformers
 pillow
+transformers
+torch==2.2.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
