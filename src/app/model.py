@@ -10,8 +10,8 @@ if os.path.exists(MODEL_PATH):
     try:
         classifier = pipeline(
             "image-classification",
-            model=MODEL_PATH,
-            device="cpu"
+            model=MODEL_NAME,
+            device=-1,  # CPU
         )
         MODEL_MODE = "local"
         print("✅ Loaded local deepfake model")
