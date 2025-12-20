@@ -1,15 +1,15 @@
-# CI/CD Pipeline for Model Processing (VoiceGuardAI)
+# CI/CD Pipeline for Model Processing (VoiceGuardAI)  
 🔗 Live Deployment: http://167.71.235.99:8000/
 
 This project is part of **Task 11: CI/CD Pipeline for Deepfake Processing**, focused on building a **fully automated CI/CD pipeline** for an inference service.
 
-The primary objective is to demonstrate **DevOps best practices**: automated testing, containerization, continuous integration, and continuous deployment — not model accuracy or frontend sophistication.
+The primary objective is to demonstrate **DevOps best practices** : automated testing, containerization, continuous integration, and continuous deployment — rather than model accuracy or frontend sophistication.
 
 ---
 
-## 🚀 Current Project State (Final)
+## 🚀 Project Overview (Final State)
 
-This repository contains a **FastAPI-based inference service** (currently using a mock detection layer) that is:
+This repository contains a **FastAPI-based inference service** with an integrated backend, frontend, and model interface that is:
 
 - Automatically tested on every code change
 - Containerized using Docker
@@ -17,31 +17,67 @@ This repository contains a **FastAPI-based inference service** (currently using 
 - Deployed automatically to a **DigitalOcean Droplet**
 - Updated end-to-end with **zero manual deployment steps**
 
-The system is intentionally designed so that a **real deepfake detection model can be integrated later without modifying the CI/CD pipeline**.
+The system is designed so that **model logic, infrastructure, and automation are cleanly decoupled**, enabling safe iteration without breaking CI/CD.
 
 ---
 
-## ✅ What Is Implemented Today
+## ✅ What Is Implemented
 
 ### 🧠 Inference API
 - FastAPI backend exposing:
   - `GET /health` → runtime health check
-  - `POST /predict` → mock inference via JSON input
-  - `POST /predict-file` → mock inference via file upload
-- A mock prediction layer is used to:
-  - keep CI deterministic
-  - avoid coupling infrastructure to model training
-  - ensure deployment stability
+  - `POST /predict` → inference via structured JSON input
+  - `POST /predict-file` → inference via file upload
+- Inference layer is fully wired and validated through the API contract
+- Model logic can be updated independently of the pipeline
+
+---
+### 🧩 Model Deployment & Runtime Integration
+
+The deepfake detection model is deployed **outside the application container** on the DigitalOcean Droplet to allow independent model updates.
+
+**Model location on droplet:**
+
+```
+/opt/models/deepfake
+
+├── config.json
+├── model.safetensors
+└── preprocessor_config.json
+```
+
+**Integration approach:**
+- The FastAPI service runs inside a Docker container
+- The container accesses the model via a fixed filesystem path
+- Model artifacts are **not baked into the Docker image**
+- This allows:
+  - updating or replacing the model without rebuilding images
+  - keeping CI/CD pipelines deterministic
+  - avoiding large model artifacts in the image registry
+
+The inference API (`/predict`, `/predict-file`) is designed to remain stable regardless of model updates, ensuring that **CI/CD automation and deployment workflows remain unchanged**.
 
 ---
 
-### 🌐 Lightweight Web UI
-- Simple HTML/CSS/JavaScript UI served by FastAPI
-- Allows:
-  - URL-based prediction
-  - File upload & prediction
-- UI exists **only for runtime validation and demonstration**
-- No frontend frameworks used by design
+### 🔗 Model & Dataset References
+
+The inference API is compatible with a real deepfake detection model and dataset used during development and validation:
+
+- **Kaggle Images Dataset:** https://www.kaggle.com/code/dima806/deepfake-vs-real-faces-detection-vit/input
+- **Hugging Face Model:** https://huggingface.co/dima806/deepfake_vs_real_image_detection
+
+The model interface is already integrated into the backend.  
+CI/CD automation, containerization, and deployment remain unchanged regardless of model updates.
+
+---
+
+### 🌐 Web UI (Runtime Validation)
+- Lightweight HTML/CSS/JavaScript UI served directly by FastAPI
+- Supports:
+  - URL-based inference
+  - File upload & inference
+- UI is intentionally minimal and framework-free
+- Exists **only for deployment validation and demo purposes**
 
 ---
 
@@ -52,19 +88,19 @@ The system is intentionally designed so that a **real deepfake detection model c
   - `/health` endpoint
   - inference endpoints
 - Tests act as **CI quality gates**
-- Deployment is blocked if tests fail
+- Deployment is **blocked** if tests fail
 
 ---
 
 ### 🐳 Containerization
 - Fully Dockerized application
-- Uses a slim Python base image
-- Installs only runtime dependencies
-- Clean, repeatable builds
+- Slim Python base image
+- Only runtime dependencies included
+- Clean, repeatable builds suitable for production
 
 ---
 
-### 🔁 CI/CD Pipeline (Fully Functional)
+### 🔁 CI/CD Pipeline (Fully Automated)
 - **GitHub Actions** workflow:
   - Runs tests on every push
   - Builds Docker image
@@ -94,7 +130,7 @@ The system is intentionally designed so that a **real deepfake detection model c
 - **CI/CD:** GitHub Actions  
 - **Registry:** Docker Hub  
 - **Deployment:** DigitalOcean (SSH-based continuous deployment)  
-- **Frontend (demo only):** HTML, CSS, Vanilla JavaScript  
+- **Frontend:** HTML, CSS, Vanilla JavaScript  
 
 ---
 
@@ -103,7 +139,7 @@ The system is intentionally designed so that a **real deepfake detection model c
 | Path                    | Description                         |
 |-------------------------|-------------------------------------|
 | `.github/workflows/`    | CI/CD pipeline definitions          |
-| `docker/`               | Docker compose configuration        |
+| `docker/`               | Docker configuration                |
 | `src/app/`              | FastAPI application                 |
 | `tests/`                | API smoke tests                     |
 | `requirements.txt`      | Runtime dependencies                |
@@ -112,30 +148,30 @@ The system is intentionally designed so that a **real deepfake detection model c
 
 ---
 
-## 🔮 Future Improvements (Planned, Not Implemented)
+## 🔮 Future Improvements (Optional Extensions)
 
-These are **intentional future extensions**, not missing features:
+These are **intentional enhancements**, not missing features:
 
-### 🔹 Model Integration
-- Replace mock inference layer with a real deepfake detection model
-- No CI/CD or deployment changes required
+### 🔹 Model Enhancements
+- Improve accuracy and confidence calibration
+- Support multiple model versions
 
 ### 🔹 Observability
 - Structured logging
-- Request IDs
+- Request tracing
 - Basic metrics (latency, error rate)
 
-### 🔹 Security & Validation
-- Input validation (file size, MIME types)
+### 🔹 Security
+- File validation (size, MIME type)
 - Rate limiting
-- Authentication for inference endpoints
+- Auth-protected inference endpoints
 
-### 🔹 Deployment Enhancements
-- Image versioning & rollback strategy
+### 🔹 Deployment Strategy
+- Image versioning & rollback
 - Blue/green or canary deployments
 - Infrastructure-as-Code (Terraform)
 
-These improvements can be added incrementally without architectural changes.
+All of the above can be added **without changing the existing CI/CD architecture**.
 
 ---
 
@@ -146,12 +182,12 @@ These improvements can be added incrementally without architectural changes.
 - Deterministic testing
 - Clean containerization
 - Reliable deployments
-- DevOps-first thinking
+- DevOps-first system design
 
 ### Explicitly Out of Scope
-- More recent model, for improved confidence scores
 - Advanced frontend development
-- Complex observability stacks (Prometheus, Grafana) as the project grows.
+- Large-scale observability stacks
+- Research-focused model experimentation
 
 This aligns with the task guideline:
 
@@ -161,7 +197,7 @@ This aligns with the task guideline:
 
 ## 🔍 Verification
 
-- CI/CD runs are visible via **GitHub Actions**
+- CI/CD runs visible via **GitHub Actions**
 - Live deployment URL included above
 - API contract inspectable via `/docs`
 
@@ -170,4 +206,4 @@ This aligns with the task guideline:
 ## 📝 Notes
 
 This README reflects the **final state of the project at submission time**.  
-The repository is intentionally structured to support future growth without reworking the existing CI/CD pipeline.
+The repository is structured to support future growth **without reworking the CI/CD pipeline**.
