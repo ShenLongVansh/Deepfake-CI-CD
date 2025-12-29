@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceGuardAI - Deepfake Detection</title>
+    <title>VoiceGuardAI - Deepfake Detection System</title>
     <style>
         :root {
             /* Extracted from your logo: A vibrant Royal/Electric Blue */
-            --primary-color: #2563eb; 
+            --primary-color: #2563eb;
             --primary-hover: #1d4ed8;
-            --accent-glow: rgba(37, 99, 235, 0.35); /* Soft blue shadow */
-            
+            --accent-glow: rgba(37, 99, 235, 0.35);
+            /* Soft blue shadow */
+
             --bg-gradient: linear-gradient(180deg, #f1f5f9 0%, #ffffff 100%);
             --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
@@ -27,31 +29,48 @@
             color: #1e293b;
         }
 
-        .header { text-align: center; margin-bottom: 2rem; }
-        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
         .logo-img {
             width: 90px;
             height: 90px;
-            object-fit: contain; 
+            object-fit: contain;
             margin-bottom: 0.5rem;
             border-radius: 12px;
             /* Optional: Add a subtle shadow to the logo itself */
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); 
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
         }
 
-        h1 { margin: 0; font-size: 2rem; color: #0f172a; letter-spacing: -0.025em; font-weight: 800; }
-        .subtitle { color: #64748b; margin-top: 0.5rem; font-size: 1.1rem; }
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
 
         .card {
             background: white;
-            width: 90%; max-width: 600px;
+            width: 90%;
+            max-width: 600px;
             padding: 2.5rem;
             border-radius: 20px;
             box-shadow: var(--card-shadow);
         }
 
-        .input-group { margin-bottom: 1.5rem; }
-        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
         .label {
             display: block;
             font-weight: 600;
@@ -60,7 +79,10 @@
             color: #334155;
         }
 
-        .input-row { display: flex; gap: 12px; }
+        .input-row {
+            display: flex;
+            gap: 12px;
+        }
 
         input[type="text"] {
             flex: 1;
@@ -71,9 +93,10 @@
             transition: 0.2s;
             font-size: 1rem;
         }
-        input[type="text"]:focus { 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); 
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
         }
 
         /* --- UPDATED BUTTON STYLES --- */
@@ -91,24 +114,45 @@
             min-width: 110px;
         }
 
-        .btn:hover { 
+        .btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px 0 var(--accent-glow);
             filter: brightness(1.1);
         }
-        
-        .btn:active { transform: translateY(1px); }
-        .btn:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
         .divider {
-            text-align: center; margin: 2rem 0; position: relative;
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
         }
+
         .divider::before {
-            content: ""; position: absolute; top: 50%; left: 0; right: 0;
-            height: 1px; background: #e2e8f0;
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
         }
+
         .divider span {
-            background: white; padding: 0 15px; color: #94a3b8; font-size: 0.85rem; font-weight: 600;
+            background: white;
+            padding: 0 15px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
             position: relative;
         }
 
@@ -122,20 +166,38 @@
             transition: 0.2s;
             background: #f8fafc;
         }
-        .file-drop:hover { border-color: var(--primary-color); background: #eff6ff; color: var(--primary-color); }
+
+        .file-drop:hover {
+            border-color: var(--primary-color);
+            background: #eff6ff;
+            color: var(--primary-color);
+        }
 
         /* --- RESULT STYLES --- */
-        #loader { display: none; text-align: center; margin-top: 1.5rem; font-weight: 600; color: var(--primary-color); }
-        
+        #loader {
+            display: none;
+            text-align: center;
+            margin-top: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
         #result-box {
-            display: none; 
+            display: none;
             margin-top: 2rem;
             animation: fadeIn 0.4s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .verdict-card {
@@ -145,21 +207,45 @@
             margin-bottom: 1.5rem;
         }
 
-        .res-real { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-        .res-fake { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-        .res-error { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
+        .res-real {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
 
-        .verdict { font-size: 1.8rem; font-weight: 800; display: block; margin-bottom: 0.25rem; }
-        .conf { font-size: 1.1rem; opacity: 0.9; }
+        .res-fake {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .res-error {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .verdict {
+            font-size: 1.8rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .conf {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
 
         /* --- JSON BOX STYLES (Persistent) --- */
         .json-wrapper {
-            background: #0f172a; /* Dark background like terminal/logo */
+            background: #0f172a;
+            /* Dark background like terminal/logo */
             border-radius: 10px;
             overflow: hidden;
             margin-top: 1rem;
             text-align: left;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .json-label {
@@ -180,23 +266,34 @@
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 0.85rem;
             overflow-x: auto;
-            white-space: pre-wrap; 
+            white-space: pre-wrap;
             line-height: 1.5;
         }
 
         /* Syntax Highlighting for JSON keys */
-        .key { color: #60a5fa; }
-        .string { color: #4ade80; }
-        .number { color: #fbbf24; }
-        .boolean { color: #f472b6; }
+        .key {
+            color: #60a5fa;
+        }
 
+        .string {
+            color: #4ade80;
+        }
+
+        .number {
+            color: #fbbf24;
+        }
+
+        .boolean {
+            color: #f472b6;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="header">
         <img src="/static/voice-logo.jpeg" alt="VoiceGuardAI Logo" class="logo-img" onerror="this.style.display='none'">
-        
+
         <h1>VoiceGuardAI</h1>
         <div class="subtitle">Advanced Deepfake Detection System</div>
     </div>
@@ -224,9 +321,9 @@
         </div>
 
         <div id="loader">Processing analysis... ⏳</div>
-        
+
         <div id="result-box">
-            
+
             <div id="verdict-card" class="verdict-card">
                 <span id="verdict" class="verdict"></span>
                 <div id="confidence" class="conf"></div>
@@ -248,8 +345,8 @@
 
         function setUIState(isLoading) {
             document.getElementById('loader').style.display = isLoading ? 'block' : 'none';
-            document.getElementById('result-box').style.display = 'none'; 
-            
+            document.getElementById('result-box').style.display = 'none';
+
             document.getElementById('btn-url').disabled = isLoading;
             document.getElementById('btn-file').disabled = isLoading;
         }
@@ -257,7 +354,7 @@
         // Helper to colorize JSON (Optional visual flair)
         function syntaxHighlight(json) {
             if (typeof json != 'string') {
-                 json = JSON.stringify(json, undefined, 2);
+                json = JSON.stringify(json, undefined, 2);
             }
             json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
@@ -291,7 +388,7 @@
             // 1. Set Visuals
             vCard.className = `verdict-card ${isReal ? 'res-real' : 'res-fake'}`;
             verdictEl.innerText = isReal ? "REAL IMAGE" : "DEEPFAKE DETECTED";
-            
+
             // 2. Set Confidence
             const confPercent = (parseFloat(data.confidence) * 100).toFixed(1);
             confEl.innerText = `Confidence Score: ${confPercent}%`;
@@ -306,14 +403,14 @@
         function showError(msg) {
             const box = document.getElementById('result-box');
             const vCard = document.getElementById('verdict-card');
-            
+
             vCard.className = 'verdict-card res-error';
             document.getElementById('verdict').innerText = "ERROR";
             document.getElementById('confidence').innerText = msg;
-            
+
             // Show simple error object in JSON box
             document.getElementById('json-output').innerHTML = syntaxHighlight({ error: msg, status: "failed" });
-            
+
             box.style.display = 'block';
         }
 
@@ -378,4 +475,5 @@
         }
     </script>
 </body>
+
 </html>
