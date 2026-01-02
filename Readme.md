@@ -1,5 +1,5 @@
 # CI/CD Pipeline for Model Processing (VoiceGuardAI)  
-🔗 Live Deployment: http://167.71.235.99:8000/
+🔗 Live Deployment: (Temporarily Down)
 
 This project is part of **Task 11: CI/CD Pipeline for Deepfake Processing**, focused on building a **fully automated CI/CD pipeline** for an inference service.
 
